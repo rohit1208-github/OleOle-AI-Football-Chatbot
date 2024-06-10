@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Interface</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #chat-container {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 80%;
+            max-width: 600px;
+        }
+        #chat-header {
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+        #chat-body {
+            padding: 20px;
+            height: 400px; /* Adjust height as needed */
+            overflow-y: auto;
+        }
+        #chat-form {
+            display: flex;
+            padding: 20px;
+            background-color: #f8f8f8;
+            border-top: 1px solid #ddd;
+        }
+        #chat-form input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        #chat-form input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #007bff;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+        }
+        .chat-message {
+            padding: 10px 20px;
+            border-radius: 20px;
+            display: inline-block;
+            max-width: 70%;
+            margin-bottom: 10px;
+        }
+        .user-message {
+            background-color: #dcf8c6;
+            margin-left: 30%;
+            text-align: right;
+        }
+        .bot-message {
+            background-color: #e5e5ea;
+            margin-right: 30%;
+            text-align: left;
+        }
+        .sources {
+            font-size: 0.8em;
+            text-align: center;
+            margin-top: 20px;
+            color: #888;
+        }
+        .source-link {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: normal;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-header">Chatbot Interface</div>
+        <div id="chat-body"></div>
+        <form id="chat-form">
+            <input type="text" name="prompt" placeholder="Type your message..." required>
+            <input type="submit" value="Send">
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const chatBody = $('#chat-body');
+    
+            function appendMessage(type, text) {
+                const messageClass = type === 'user' ? 'user-message' : 'bot-message';
+                const messageElement = `<div class="chat-message ${messageClass}">${text}</div>`;
+                chatBody.append(messageElement);
+                chatBody.scrollTop(chatBody[0].scrollHeight);
+            }
+    
+            function appendSources(sources) {
+                const sourcesText = sources.map(source => `<a href="${source.url}" class="source-link" target="_blank">${source.name}</a>`).join(', ');
+                const sourcesElement = `<div class="sources">Sources: ${sourcesText}</div>`;
+                chatBody.append(sourcesElement);
+            }
+    
+            $('#chat-form').submit(function(event) {
+                event.preventDefault();
+                const userInput = $('input[name="prompt"]').val();
+                appendMessage('user', userInput);
+                $.ajax({
+                    type: 'POST',
+                    url: '/query',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        // Assume the server response includes a field 'answer' with HTML formatting
+                        appendMessage('bot', response.answer);
+                        // Append sources if available
+                        if (response.sources) {
+                            appendSources(response.sources);
+                        }
+                    },
+                    error: function() {
+                        appendMessage('bot', 'Sorry, there was an error processing your message.');
+                    }
+                });
+                $(this).trigger("reset");
+            });
+        });
+    </script>

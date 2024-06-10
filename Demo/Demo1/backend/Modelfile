@@ -1,0 +1,16 @@
+FROM zephyr:7b-alpha-q6_K
+PARAMETER stop [INST]
+PARAMETER stop ```
+PARAMETER stop ##
+PARAMETER stop User:
+
+TEMPLATE """{{- if .First }}
+### System:
+{{ .System }}
+{{- end }}
+
+### User:
+{{ .Prompt }}
+
+### Assistant:
+"""

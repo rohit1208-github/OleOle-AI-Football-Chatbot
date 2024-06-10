@@ -1,0 +1,14 @@
+---
+data_dir: ./data
+embeddings_model: sentence-transformers/gtr-t5-large
+mediawikis:
+  - arsenal.txt
+model: oleolez
+question: How many Goals have Arsenal scored?
+settings:
+  num_sources: 169
+  repeat_penalty: 1.8
+  temperature: 0.1
+  top_k: 25
+  top_p: 0.2
+source: ./sources
